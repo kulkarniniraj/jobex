@@ -1,7 +1,7 @@
 from fasthtml.common import *
 
 def friend_form(name: str, experience: str, cv_path: str, 
-                skills: List[Dict]):
+                skills: List[Dict], id: int):
     return Div(
         A(
             "Home",

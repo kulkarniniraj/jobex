@@ -131,7 +131,7 @@ def o_get_newfriend(name = '', experience = '', cv_path = '', skills_in = [],
         'id': skl.id,
         'selected': skl.id in skills_in} for skl in SkillTag.select()]
     print(skills_in)
-    return friend_form(name, experience, cv_path, skills)
+    return friend_form(name, experience, cv_path, skills, id)
 
 @rt('/newfriend')
 def get():
