@@ -1,55 +1,15 @@
 from fasthtml.common import *
+from peewee import fn
 
 from models import db, SkillTag, PersonSkill, PositionSkill
 from models import Person, Position
-from templates import friend_form
+from templates import friend_form, position_form
 
 app, rt = fast_app(hdrs=[
     Script(src="https://cdn.tailwindcss.com"),
 ], default_hdrs=False, debug=True)
 
 
-def get_skill_dev():
-    skills = [sk.name for sk in SkillTag.select()]
-
-    return Div(
-        H2("Skills", cls="text-2xl font-semibold text-gray-800 mb-4"),
-        *[Div(
-            Div(
-                Span(f"{sk}", cls="font-medium text-gray-700"),
-                Span("Tag", cls="text-sm text-gray-500"),
-                cls="flex space-x-4"
-            ),
-            Div(
-                A("Edit", href="#", cls="text-blue-600 hover:text-blue-800"),
-                A("Delete", href="#", cls="text-red-600 hover:text-red-800"),
-                cls="space-x-2"
-            ),
-            cls="flex flex-col justify-between mb-4"  # items-center
-        ) for sk in skills],
-        # Div(
-        #     Div(
-        #         Span("React", cls="font-medium text-gray-700"),
-        #         Span("Tag", cls="text-sm text-gray-500"),
-        #         cls="flex space-x-4"
-        #     ),
-        #     Div(
-        #         A("Edit", href="#", cls="text-blue-600 hover:text-blue-800"),
-        #         A("Delete", href="#", cls="text-red-600 hover:text-red-800"),
-        #         cls="space-x-2"
-        #     ),
-        #     cls="flex flex-col justify-between mb-4"  # items-center
-        # ),
-        Div(
-            A(
-                " + Add Skill ",
-                href="/newskill",
-                cls="text-green-600 hover:text-green-800"
-            ),
-            cls=""
-        ),
-        cls="bg-white p-6 rounded-lg shadow-md mb-6"
-    )
 
 @rt('/')
 def get():
@@ -118,7 +78,7 @@ def get_friends_div():
             ),
             cls=""
         ),
-        cls="bg-white p-6 rounded-lg shadow-md mb-6"
+        cls="bg-white p-6 rounded-lg shadow-md mb-6 max-h-96 overflow-y-scroll"
     )
 
 def o_get_newfriend(name = '', experience = '', cv_path = '', skills_in = [], 
@@ -255,110 +215,18 @@ def get_jobs_div():
             ),
             cls=""
         ),
-        cls="bg-white p-6 rounded-lg shadow-md mb-6"
+        cls="bg-white p-6 rounded-lg shadow-md mb-6  max-h-96 overflow-y-scroll"
     )
 
 def o_get_newjob(cname = '', jname = '', experience = '', tags = [], id = None):
     skills = [skl for skl in SkillTag.select()]
-    return Div(
-        A(
-            "Home",
-            href="/",
-            cls="text-xl text-blue-500 mb-3"
-        ),
-        H1(
-            "Add New Job Opening",
-            cls="text-3xl font-bold text-gray-800 mb-3",
-        ),
-        Div(
+    return position_form(id = id, company_name=cname, job_name=jname,
+                         experience=experience,  skills=[{
+                             'name': skl.name, 
+                             'id': skl.id,
+                             'selected': skl.id in tags
+                             } for skl in skills])
 
-            Form(
-                Div(
-                    Label(
-                        "Company Name",
-                        for_="cname",
-                        cls="block text-gray-700 font-medium mb-2",
-                    ),
-                    Input(
-                        type="text",
-                        id="cname",
-                        name="cname",
-                        cls="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-                        required=True,
-                        value=cname
-                    ),
-                    cls="mb-4",
-                ),
-                Div(
-                    Label(
-                        "Position Name",
-                        for_="jname",
-                        cls="block text-gray-700 font-medium mb-2",
-                    ),
-                    Input(
-                        type="text",
-                        id="jname",
-                        name="jname",
-                        cls="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-                        required=True,
-                        value=jname
-                    ),
-                    cls="mb-4",
-                ),
-                Div(
-                    Label(
-                        "Experience (Years)",
-                        for_="experience",
-                        cls="block text-gray-700 font-medium mb-2",
-                    ),
-                    Input(
-                        type="number",
-                        id="experience",
-                        name="experience",
-                        cls="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-                        required=True,
-                        min=0,
-                        value=experience
-                    ),
-                    cls="mb-4",
-                ),
-                Div(
-                    Label(
-                        "Skills / Tags",
-                        for_="tags",
-                        cls="block text-gray-700 font-medium mb-2",
-                    ),
-                    Select(
-                        *[
-                            Option(skl.name, value=f"{skl.id}",
-                                   selected=(skl.id in tags)) for skl in skills
-                        ],
-                        id="tags",
-                        name="tags",
-                        cls="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-                        multiple=True,
-                        required=True,
-                    ),
-                    cls="mb-4",
-                ),
-                Div(
-
-                    Button(
-                        "Add Job",
-                        type="submit",
-                        cls="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 " \
-                            "focus:outline-none focus:ring-2 focus:ring-blue-500",
-                    ),
-                    cls="mt-4",
-                ),
-                action="/newjob" if id is None else f"/newjob/{id}/update",
-                method="POST",
-
-            ),
-            cls="bg-white p-6 rounded-lg shadow-md",
-        ),
-        cls="max-w-3xl mx-auto p-6 mt-4 mb-12"
-    )
 
 @rt('/newjob')
 def get():
@@ -408,6 +276,48 @@ def get(id: int):
                            [sk.skill.id for sk in skills], id)
 
 ##############################################################################
+def get_skill_dev():
+    # get skills sorted by name, case insensitive    
+    skills = [sk.name for sk in SkillTag.select().order_by(fn.Lower(SkillTag.name))]
+
+    return Div(
+        H2("Skills", cls="text-2xl font-semibold text-gray-800 mb-4"),
+        *[Div(
+            Div(
+                Span(f"{sk}", cls="font-medium text-gray-700"),
+                Span("Tag", cls="text-sm text-gray-500"),
+                cls="flex space-x-4"
+            ),
+            Div(
+                A("Edit", href="#", cls="text-blue-600 hover:text-blue-800"),
+                A("Delete", href="#", cls="text-red-600 hover:text-red-800"),
+                cls="space-x-2"
+            ),
+            cls="flex flex-col justify-between mb-4"  # items-center
+        ) for sk in skills],
+        # Div(
+        #     Div(
+        #         Span("React", cls="font-medium text-gray-700"),
+        #         Span("Tag", cls="text-sm text-gray-500"),
+        #         cls="flex space-x-4"
+        #     ),
+        #     Div(
+        #         A("Edit", href="#", cls="text-blue-600 hover:text-blue-800"),
+        #         A("Delete", href="#", cls="text-red-600 hover:text-red-800"),
+        #         cls="space-x-2"
+        #     ),
+        #     cls="flex flex-col justify-between mb-4"  # items-center
+        # ),
+        Div(
+            A(
+                " + Add Skill ",
+                href="/newskill",
+                cls="text-green-600 hover:text-green-800"
+            ),
+            cls=""
+        ),
+        cls="bg-white p-6 rounded-lg shadow-md mb-6 max-h-96 overflow-y-scroll"
+    )
 
 @rt('/newskill')
 def get():
