@@ -1,7 +1,9 @@
 from fasthtml.common import *
 
-def friend_form(name: str, experience: str, cv_path: str, 
-                skills: List[Dict], id: int):
+def friend_form(id: int, name: str, experience: str, cv_path: str, 
+                skills: List[Dict]):
+    title = "Add New Friend" if id is None else "Update Friend"
+    button_text = "Add Friend" if id is None else "Update Friend"
     return Div(
         A(
             "Home",
@@ -9,7 +11,7 @@ def friend_form(name: str, experience: str, cv_path: str,
             cls="text-xl text-blue-500 mb-3"
         ),
         H1(
-            "Add New Friend",
+            title,
             cls="text-3xl font-bold text-gray-800 mb-3",
         ),
         Div(
@@ -87,7 +89,7 @@ def friend_form(name: str, experience: str, cv_path: str,
                 Div(
 
                     Button(
-                        "Add Friend",
+                        button_text,
                         type="submit",
                         cls="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 " \
                             "focus:outline-none focus:ring-2 focus:ring-blue-500",
@@ -114,6 +116,8 @@ def position_form(id = None, company_name = '', job_name = '', experience = '',
         }
     ]
     """
+    title = "Add New Position" if id is None else "Update Position"
+    button_text = "Add Position" if id is None else "Update Position"
     return Div(
         A(
             "Home",
@@ -121,7 +125,7 @@ def position_form(id = None, company_name = '', job_name = '', experience = '',
             cls="text-xl text-blue-500 mb-3"
         ),
         H1(
-            "Add New Job Opening",
+            title,
             cls="text-3xl font-bold text-gray-800 mb-3",
         ),
         Div(
@@ -214,7 +218,7 @@ def position_form(id = None, company_name = '', job_name = '', experience = '',
                 Div(
 
                     Button(
-                        "Add Job",
+                        button_text,
                         type="submit",
                         cls="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 " \
                             "focus:outline-none focus:ring-2 focus:ring-blue-500",

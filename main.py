@@ -91,12 +91,12 @@ def o_get_newfriend(name = '', experience = '', cv_path = '', skills_in = [],
         'id': skl.id,
         'selected': skl.id in skills_in} for skl in SkillTag.select()]
     print(skills_in)
-    return friend_form(name, experience, cv_path, skills, id)
+    return friend_form(id, name, experience, cv_path, skills)
 
 @rt('/newfriend')
 def get():
     """
-    Add new friend
+    Render form for adding new friend
     """
     return o_get_newfriend()
 
@@ -223,10 +223,16 @@ def o_get_newjob(cname = '', jname = '', job_link='', experience = '',
 
 @rt('/newjob')
 def get():
+    """
+    Render form for adding new job
+    """
     return o_get_newjob()
 
 @rt('/newjob')
 def post(cname: str, jname: str, jlink: str, experience: int, tags: list[str]):
+    """
+    Post route for adding new job
+    """
     print(f'{cname=} {jname=} {experience=} {tags=}')
     print()
     position = Position(company = cname, position_name = jname,
@@ -246,6 +252,9 @@ def post(cname: str, jname: str, jlink: str, experience: int, tags: list[str]):
 @rt('/newjob/{id}/update')
 def post(id: int, cname: str, jname: str, jlink: str, experience: int, 
          tags: list[str]):
+    """
+    Post route for updating job
+    """
     pos = Position.get_by_id(id)
     pos.company = cname
     pos.position_name = jname
@@ -265,6 +274,9 @@ def post(id: int, cname: str, jname: str, jlink: str, experience: int,
 
 @rt('/newjob/{id}/edit')
 def get(id: int):
+    """
+    Get edit form for job
+    """
     pos = Position.get_by_id(id)
     skills = PositionSkill.select().where(PositionSkill.position == id)
     
