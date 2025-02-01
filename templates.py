@@ -104,7 +104,7 @@ def friend_form(name: str, experience: str, cv_path: str,
     )
 
 def position_form(id = None, company_name = '', job_name = '', experience = '', 
-                  skills = []):
+                  job_link='', skills = []):
     """
     skills = [
         {
@@ -156,6 +156,22 @@ def position_form(id = None, company_name = '', job_name = '', experience = '',
                         cls="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
                         required=True,
                         value=job_name
+                    ),
+                    cls="mb-4",
+                ),
+                Div(
+                    Label(
+                        "Job Link",
+                        for_="jlink",
+                        cls="block text-gray-700 font-medium mb-2",
+                    ),
+                    Input(
+                        type="text",
+                        id="jlink",
+                        name="jlink",
+                        cls="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                        required=True,
+                        value=job_link
                     ),
                     cls="mb-4",
                 ),

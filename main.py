@@ -160,6 +160,7 @@ def get_jobs_div():
         pos.id: {
             'cname': pos.company,
             'jname': pos.position_name,
+            'job_link': pos.job_link,
             'skills': [
                 sk.skill.name for sk in pos.skills
             ],
@@ -184,6 +185,11 @@ def get_jobs_div():
                     cls="flex space-x-4"
                 ),
                 Div(
+                    Span("Job Link: ", cls="font-medium text-gray-700"),
+                    A(f"{v['job_link']}", href=f"{v['job_link']}", 
+                      cls="text-blue-600 hover:text-blue-800")
+                ),
+                Div(
                     A("Edit", href=f"/newjob/{k}/edit", cls="text-blue-600 hover:text-blue-800"),
                     A("Delete", href="#", cls="text-red-600 hover:text-red-800"),
                     cls="space-x-2"
@@ -193,20 +199,6 @@ def get_jobs_div():
             )
             for k,v in pos_dict.items()
         ],
-        Div(
-            Div(
-                Span("Front-End Developer", cls="font-medium text-gray-700"),
-                Span("Skills: JavaScript, React", cls="text-sm text-gray-500"),
-                Span("Experience: 3 years", cls="text-sm text-gray-500"),
-                cls="flex space-x-4"
-            ),
-            Div(
-                A("Edit", href="#", cls="text-blue-600 hover:text-blue-800"),
-                A("Delete", href="#", cls="text-red-600 hover:text-red-800"),
-                cls="space-x-2"
-            ),
-            cls="flex justify-between flex-col mb-4"  # items-center
-        ),
         Div(
             A(
                 " + Add Job ",
@@ -218,10 +210,11 @@ def get_jobs_div():
         cls="bg-white p-6 rounded-lg shadow-md mb-6  max-h-96 overflow-y-scroll"
     )
 
-def o_get_newjob(cname = '', jname = '', experience = '', tags = [], id = None):
+def o_get_newjob(cname = '', jname = '', job_link='', experience = '',
+                 tags = [], id = None):
     skills = [skl for skl in SkillTag.select()]
     return position_form(id = id, company_name=cname, job_name=jname,
-                         experience=experience,  skills=[{
+                         job_link=job_link, experience=experience,  skills=[{
                              'name': skl.name, 
                              'id': skl.id,
                              'selected': skl.id in tags
@@ -233,10 +226,11 @@ def get():
     return o_get_newjob()
 
 @rt('/newjob')
-def post(cname: str, jname: str, experience: int, tags: list[str]):
+def post(cname: str, jname: str, jlink: str, experience: int, tags: list[str]):
     print(f'{cname=} {jname=} {experience=} {tags=}')
     print()
     position = Position(company = cname, position_name = jname,
+                        job_link = jlink,
                         experience = experience)
     position.save()
 
@@ -250,10 +244,12 @@ def post(cname: str, jname: str, experience: int, tags: list[str]):
     return Redirect("/")
 
 @rt('/newjob/{id}/update')
-def post(id: int, cname: str, jname: str, experience: int, tags: list[str]):
+def post(id: int, cname: str, jname: str, jlink: str, experience: int, 
+         tags: list[str]):
     pos = Position.get_by_id(id)
     pos.company = cname
     pos.position_name = jname
+    pos.job_link = jlink
     pos.experience = experience
     pos.save()
 
@@ -272,7 +268,8 @@ def get(id: int):
     pos = Position.get_by_id(id)
     skills = PositionSkill.select().where(PositionSkill.position == id)
     
-    return o_get_newjob(pos.company, pos.position_name, pos.experience,
+    return o_get_newjob(pos.company, pos.position_name, pos.job_link,
+                        pos.experience,
                            [sk.skill.id for sk in skills], id)
 
 ##############################################################################
