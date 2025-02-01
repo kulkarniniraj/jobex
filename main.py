@@ -13,7 +13,7 @@ app, rt = fast_app(hdrs=[
 
 @rt('/')
 def get():
-    return Title("Abcd"), Body(
+    return Title("JobEx job reference manager"), Body(
         Div(
             H1("Job Reference Management",
                cls="text-3xl font-bold text-gray-800 mb-6"),
@@ -89,7 +89,8 @@ def o_get_newfriend(name = '', experience = '', cv_path = '', skills_in = [],
     skills = [{
         'name': skl.name,
         'id': skl.id,
-        'selected': skl.id in skills_in} for skl in SkillTag.select()]
+        'selected': skl.id in skills_in} for skl in 
+            SkillTag.select().order_by(fn.Lower(SkillTag.name))]
     print(skills_in)
     return friend_form(id, name, experience, cv_path, skills)
 
@@ -212,7 +213,7 @@ def get_jobs_div():
 
 def o_get_newjob(cname = '', jname = '', job_link='', experience = '',
                  tags = [], id = None):
-    skills = [skl for skl in SkillTag.select()]
+    skills = [skl for skl in SkillTag.select().order_by(fn.Lower(SkillTag.name))]
     return position_form(id = id, company_name=cname, job_name=jname,
                          job_link=job_link, experience=experience,  skills=[{
                              'name': skl.name, 
