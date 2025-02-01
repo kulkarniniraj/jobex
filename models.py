@@ -23,6 +23,7 @@ class PersonSkill(Model):
 class Position(Model):
     company = CharField()
     position_name = CharField()
+    job_link = CharField(null=True)
     experience = IntegerField()
     class Meta:
         database = db
